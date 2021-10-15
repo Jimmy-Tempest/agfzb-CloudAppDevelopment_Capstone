@@ -54,8 +54,25 @@ def logout_request(request):
     return HttpResponseRedirect(reverse("djangoapp:index"))
 
 # Create a `registration_request` view to handle sign up request
-# def registration_request(request):
-# ...
+def registration_request(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        f_name = request.POST["f_name"]
+        l_name = request.POST["l_name"]
+
+        # Ensure password matches confirmation
+        password = request.POST["password"]
+        # Attempt to create new user
+        try:
+            user = User.objects.create_user(username=username, password=password, first_name=f_name, last_name=l_name)
+            user.save()
+        except IntegrityError as e:
+            print(e)
+            return render(request, "djangoapp/registration.html")
+        login(request, user)
+        return HttpResponseRedirect(reverse("djangoapp:index"))
+    else:
+        return render(request, "djangoapp/registration.html")
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
