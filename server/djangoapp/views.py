@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
+from django.urls import reverse
 import logging
 import json
 
@@ -30,12 +31,27 @@ def contact(request):
     if request.method == "GET":
         return render(request, 'djangoapp/contact.html', context)
 # Create a `login_request` view to handle sign in request
-# def login_request(request):
-# ...
+def login_request(request):
+    if request.method == "POST":
+
+        # Attempt to sign user in
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+
+        # Check if authentication successful
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse("djangoapp:index"))
+        else:
+            return render(request, "djangoapp/index.html")
+    else:
+        return render(request, "djangoapp/login.html")
 
 # Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-# ...
+def logout_request(request):
+    logout(request)
+    return HttpResponseRedirect(reverse("djangoapp:index"))
 
 # Create a `registration_request` view to handle sign up request
 # def registration_request(request):
